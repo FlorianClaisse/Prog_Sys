@@ -4,19 +4,24 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+void System(const char *arg) {
+    pid_t pid = fork();
+
+    if (pid == 0) {
+        // Toujours ensemble
+        execl("/bin/sh", "sh", "-c", arg, (char *) NULL);
+        perror("/bin/sh");
+        exit(EXIT_FAILURE);
+    }
+    // Toujours attendre
+    int status;
+    waitpid(pid, &status, 0);
+}
+
 int main(int argc, char const *argv[]) {
 
-    pid_t fils = fork();
+    System("sleep 1; ls");
+    System("echo fin");
 
-    if (fils == -1) { perror("Error lors de la creation du prcessus\n"); }
-    else if (fils == 0) { 
-        int stat = execl("/bin/sh", "sh", "-c", "ls", (char *) NULL);
-        return stat;
-    }
-
-    int status;
-    waitpid(fils, &status, 0);
-    return EXIT_SUCCESS;
-    
     return EXIT_SUCCESS;
 }
